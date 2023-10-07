@@ -39,11 +39,38 @@ const run = async ()=>{
         res.send(result);
     })
 
+    app.get('/users/:id',async (req,res)=>{
+        const id= req.params.id;
+        const query={_id: new ObjectId(id)}
+        const user= await userCollection.findOne(query);
+        res.send(user);
+        
+    })
+
     app.post('/users', async (req, res)=>{
         const user= req.body;
         console.log('new user',user);
         const result=await userCollection.insertOne(user);
         res.send(result);
+
+    })
+
+    // when client site say update this user,then this server site communicate with database. 
+    app.put('/users/:id', async(req,res)=>{
+      const id=req.params.id;
+      const user=req.body;
+      console.log(id,user);
+      const query={_id: new ObjectId(id)};
+      const option={upsert:true};
+      const updateUser={
+        $set:{
+          name:user.name,
+          email:user.email
+        }
+      }
+      const result=await userCollection.updateOne(query,updateUser,option);
+      res.send(result);
+
 
     })
     app.delete('/users/:id', async (req, res)=>{
